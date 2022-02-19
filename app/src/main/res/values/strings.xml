@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">MindToDo</string>
+
+    // Text
+    <string name="title_app_bar">Tasks</string>
+    <string name="add_task">Add Task</string>
+    <string name="search_app_bar">Search Tasks</string>
+    <string name="empty_content">No Tasks Found</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="reminder">Reminder At</string>
+    <string name="reminder_quest">Are you want to reminder this task?</string>
+    <string name="reminder_option_1">No Need to be Reminded</string>
+    <string name="reminder_option_2">Yes Remind Me</string>
+    <string name="delete_task">Remove \'%s\'?</string>
+    <string name="delete_task_confirmation">Are you sure want to remove %s?</string>
+    <string name="delete_task_all">Remove All Tasks?</string>
+    <string name="delete_all_task_confirmation">Are you sure want to remove all tasks? There is no going back after this action</string>
+    <string name="reminder_task">Reminder Task?</string>
+    <string name="text_validate_error">Field cannot be empty!</string>
+    <string name="text_all_task_removed">All task is removed</string>
+    <string name="text_ok">OK</string>
+    <string name="text_undo">UNDO</string>
+    <string name="text_yes">Yes</string>
+    <string name="text_no">No</string>
+    <string name="reminder_cancelled">Reminder Cancelled</string>
+
+    // Icons
+    <string name="icon_add">Icons Add</string>
+    <string name="icon_search">Icons Search</string>
+    <string name="icon_sort">Icons Sort</string>
+    <string name="icon_delete_all">Delete All</string>
+    <string name="icon_delete">Icons Delete</string>
+    <string name="icon_update">Icons Update</string>
+    <string name="icon_close">Icons Close</string>
+    <string name="icon_back">Icons Back</string>
+    <string name="icon_drop_down">Icons Drop Down</string>
+    <string name="icon_reminder">Icons Reminder</string>
+    <string name="icon_logo">Icons Logo</string>
+</resources>

@@ -1,0 +1,110 @@
+package com.id.mindtodo.component
+
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
+import com.id.mindtodo.R
+import com.id.mindtodo.data.model.Priority
+import com.id.mindtodo.ui.theme.BORDER_WIDTH
+import com.id.mindtodo.ui.theme.PADDING_SM
+import com.id.mindtodo.ui.theme.PRIORITY_DROPDOWN_HEIGHT
+import com.id.mindtodo.ui.theme.PRIORITY_INDICATOR_SIZE
+
+@Composable
+fun PriorityDropDown(
+    priority: Priority,
+    onPrioritySelected: (priority: Priority) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val items =
+        listOf(
+            Priority.LOW,
+            Priority.MEDIUM,
+            Priority.HIGH,
+            Priority.NONE
+        )
+    var selectedIndex by remember { mutableStateOf(0) }
+    val angle: Float by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f
+    )
+    var parentSize by remember { mutableStateOf(IntSize.Zero) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { parentSize = it.size }
+            .background(MaterialTheme.colors.background)
+            .height(PRIORITY_DROPDOWN_HEIGHT)
+            .clickable { expanded = true }
+            .border(
+                width = BORDER_WIDTH,
+                color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
+                shape = MaterialTheme.shapes.small
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Canvas(
+            modifier = Modifier
+                .size(PRIORITY_INDICATOR_SIZE)
+                .weight(1f)
+        ) {
+            drawCircle(color = priority.color)
+        }
+        Spacer(modifier = Modifier.width(PADDING_SM))
+        Text(
+            modifier = Modifier.weight(8f),
+            text = priority.name,
+            style = MaterialTheme.typography.subtitle2
+        )
+        IconButton(
+            modifier = Modifier
+                .alpha(ContentAlpha.medium)
+                .rotate(angle)
+                .weight(1.5f),
+            onClick = { expanded = true }) {
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = stringResource(id = R.string.icon_drop_down),
+            )
+        }
+        DropdownMenu(
+            modifier = Modifier.width(with(LocalDensity.current) { parentSize.width.toDp() }),
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+            }) {
+            items.forEachIndexed { index, priority ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        selectedIndex = index
+                        onPrioritySelected(priority)
+                    }) {
+                    PriorityItem(priority = priority)
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PriorityDropDownPreview() {
+    PriorityDropDown(priority = Priority.MEDIUM, onPrioritySelected = {})
+}
