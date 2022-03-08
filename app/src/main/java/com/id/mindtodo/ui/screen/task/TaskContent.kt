@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.R
 import com.id.mindtodo.component.PriorityDropDown
 import com.id.mindtodo.data.model.Priority
@@ -27,6 +28,7 @@ import com.id.mindtodo.ui.viewmodel.SharedViewModel
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
+@ExperimentalPagerApi
 @Composable
 fun TaskContent(
     title: String,
@@ -35,7 +37,6 @@ fun TaskContent(
     onDescriptionChange: (String) -> Unit,
     priority: Priority,
     onPrioritySelected: (Priority) -> Unit,
-    isReminder: Boolean,
     onReminderSelected: (String) -> Unit,
     sharedViewModel: SharedViewModel
 ) {
@@ -116,7 +117,7 @@ fun TaskContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    sharedViewModel.selectDateTime(context = context, title = title)
+                    sharedViewModel.selectDateTime(context = context)
                 },
                 backgroundColor = MaterialTheme.colors.primary
             ) {

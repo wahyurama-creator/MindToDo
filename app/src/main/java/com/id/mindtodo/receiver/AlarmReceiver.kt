@@ -16,12 +16,14 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.MainActivity
 import com.id.mindtodo.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 class AlarmReceiver : BroadcastReceiver() {
@@ -43,7 +45,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val title = intent.getStringExtra(EXTRA_TITLE)
         if (message != null) {
             showAlarmNotification(context, message, title!!)
-            showToast(context, message)
         }
     }
 
@@ -78,19 +79,36 @@ class AlarmReceiver : BroadcastReceiver() {
             context,
             ID_ONETIME,
             intent,
-            0
+
+            // Fix warnings immutable
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
         )
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
-        Toast.makeText(context, "Reminder task set up", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.reminder_setup), Toast.LENGTH_SHORT)
+            .show()
     }
 
     fun cancelAlarm(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(context, ID_ONETIME, intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            ID_ONETIME,
+            intent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
         pendingIntent.cancel()
         alarmManager.cancel(pendingIntent)
-        Toast.makeText(context, "Reminder task cancelled", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.reminder_cancelled), Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun isDateInvalid(date: String, format: String): Boolean {
@@ -115,10 +133,17 @@ class AlarmReceiver : BroadcastReceiver() {
         val intent = Intent(context, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent =
-            PendingIntent.getActivity(context, 0, intent, 0)
+            PendingIntent.getActivity(
+                context, 0, intent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
+            )
         val notificationManagerCompat =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_checklist)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -126,8 +151,9 @@ class AlarmReceiver : BroadcastReceiver() {
             .setContentText(message)
             .setColor(ContextCompat.getColor(context, android.R.color.transparent))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_checklist))
+            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.logo_mindtodo))
             .setSound(alarmSound)
+            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -143,9 +169,5 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         val notification = builder.build()
         notificationManagerCompat.notify(ID_ONETIME, notification)
-    }
-
-    private fun showToast(context: Context, message: String) {
-        Toast.makeText(context, "$TYPE_ONE_TIME : $message", Toast.LENGTH_LONG).show()
     }
 }

@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import com.id.mindtodo.data.repository.ToDoRepository
 import com.id.mindtodo.receiver.AlarmReceiver
 import com.id.mindtodo.ui.util.Action
 import com.id.mindtodo.ui.util.Constants.MAX_TITLE_LENGTH
+import com.id.mindtodo.ui.util.Constants.ON_BOARD_SCREEN
 import com.id.mindtodo.ui.util.RequestState
 import com.id.mindtodo.ui.util.SearchAppBarState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -138,8 +140,8 @@ class SharedViewModel @Inject constructor(
 
     @ExperimentalAnimationApi
     @ExperimentalMaterialApi
-    fun selectDateTime(context: Context, title: String) {
-        var time = ""
+    fun selectDateTime(context: Context) {
+        var time: String
         val currentDateTime = Calendar.getInstance()
         val startYear = currentDateTime.get(Calendar.YEAR)
         val startMonth = currentDateTime.get(Calendar.MONTH)
@@ -161,23 +163,10 @@ class SharedViewModel @Inject constructor(
                 val timeStr = "$hour:$minute"
                 time = "$dateIndStr $timeStr"
 
-//                isReminder.value = true
-//                reminderAt.value = time
-
                 tempIsReminder.value = true
                 tempReminderAt.value = time
                 tempDate.value = dateUsStr
                 tempTime.value = timeStr
-
-//                val alarmReceiver = AlarmReceiver()
-//                alarmReceiver.setOneTimeAlarm(
-//                    context = context,
-//                    type = AlarmReceiver.TYPE_ONE_TIME,
-//                    date = dateUsStr,
-//                    time = timeStr,
-//                    message = "Don't forget! You have task to do now",
-//                    title = title
-//                )
             }, startHour, startMinute, false)
             timePickerDialog.show()
         }, startYear, startMonth, startDay)

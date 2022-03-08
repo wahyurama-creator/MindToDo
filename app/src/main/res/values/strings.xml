@@ -24,6 +24,8 @@
     <string name="text_yes">Yes</string>
     <string name="text_no">No</string>
     <string name="reminder_cancelled">Reminder Cancelled</string>
+    <string name="reminder_setup">Reminder is set up</string>
+    <string name="start_btn">Let\'s Start</string>
 
     // Icons
     <string name="icon_add">Icons Add</string>
@@ -37,4 +39,6 @@
     <string name="icon_drop_down">Icons Drop Down</string>
     <string name="icon_reminder">Icons Reminder</string>
     <string name="icon_logo">Icons Logo</string>
+    <string name="small_logo">Small Logo</string>
+    <string name="pager_image">Pager Image</string>
 </resources>

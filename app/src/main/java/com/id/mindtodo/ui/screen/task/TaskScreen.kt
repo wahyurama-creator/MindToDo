@@ -9,6 +9,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.R
 import com.id.mindtodo.data.model.ToDoTask
 import com.id.mindtodo.receiver.AlarmReceiver
@@ -18,6 +19,7 @@ import com.id.mindtodo.ui.viewmodel.SharedViewModel
 
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
+@ExperimentalPagerApi
 @Composable
 fun TaskScreen(
     selectedTask: ToDoTask?,
@@ -27,7 +29,6 @@ fun TaskScreen(
     val title by sharedViewModel.title
     val description by sharedViewModel.description
     val priority by sharedViewModel.priority
-    val reminder by sharedViewModel.isReminder
     val context = LocalContext.current
 
     // Temp variable
@@ -87,7 +88,6 @@ fun TaskScreen(
                 onPrioritySelected = {
                     sharedViewModel.priority.value = it
                 },
-                isReminder = reminder,
                 onReminderSelected = {
                     sharedViewModel.reminderAt.value = it
                 },

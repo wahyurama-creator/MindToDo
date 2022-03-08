@@ -11,12 +11,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.ui.screen.task.TaskScreen
 import com.id.mindtodo.ui.util.Action
 import com.id.mindtodo.ui.util.Constants
 import com.id.mindtodo.ui.util.Constants.TASK_ARGUMENT_KEY
 import com.id.mindtodo.ui.viewmodel.SharedViewModel
 
+@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 fun NavGraphBuilder.taskComposable(

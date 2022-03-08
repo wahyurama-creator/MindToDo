@@ -3,6 +3,7 @@ package com.id.mindtodo.data.di
 import android.content.Context
 import androidx.room.Room
 import com.id.mindtodo.data.database.ToDoDatabase
+import com.id.mindtodo.data.repository.DataStoreOnBoardRepository
 import com.id.mindtodo.ui.util.Constants.DATABASE_NAME
 import dagger.Module
 import dagger.Provides
@@ -27,4 +28,11 @@ object DatabaseModule {
     @Singleton
     @Provides
     fun provideDao(database: ToDoDatabase) = database.toDoDao()
+
+    // OnBoard
+    @Provides
+    @Singleton
+    fun provideDataStoreOnBoardRepository(
+        @ApplicationContext context: Context
+    ) = DataStoreOnBoardRepository(context)
 }
