@@ -77,9 +77,10 @@ fun TaskContent(
                     textStyle = MaterialTheme.typography.body1,
                 )
 
-                if (sharedViewModel.tempIsReminder.value) {
+                if (sharedViewModel.tempIsReminder.value || sharedViewModel.isReminder.value) {
                     OutlinedTextField(
-                        value = sharedViewModel.tempReminderAt.value,
+                        value = if (reminder)
+                            sharedViewModel.reminderAt.value else sharedViewModel.tempReminderAt.value,
                         onValueChange = { onReminderSelected(it) },
                         modifier = Modifier
                             .fillMaxWidth(),

@@ -1,6 +1,5 @@
 package com.id.mindtodo.ui.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -29,15 +28,7 @@ class SplashViewModel @Inject constructor(
                 } else {
                     _startDestination.value = ON_BOARD_SCREEN
                 }
-
-                Log.e(COMPELETED, completed.toString())
-                Log.e(DESTINATION, _startDestination.toString())
             }
         }
-    }
-
-    companion object {
-        private lateinit var COMPELETED: String
-        private lateinit var DESTINATION: String
     }
 }

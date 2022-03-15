@@ -8,7 +8,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.media.RingtoneManager
+import android.media.AudioAttributes
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -143,7 +144,15 @@ class AlarmReceiver : BroadcastReceiver() {
             )
         val notificationManagerCompat =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+//        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+        // Set notification sound
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .build()
+        val sound =
+            Uri.parse("android.resource://" + context.packageName + "/" + R.raw.positive_notification)
+
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_checklist)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -151,8 +160,13 @@ class AlarmReceiver : BroadcastReceiver() {
             .setContentText(message)
             .setColor(ContextCompat.getColor(context, android.R.color.transparent))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.logo_mindtodo))
-            .setSound(alarmSound)
+            .setLargeIcon(
+                BitmapFactory.decodeResource(
+                    context.resources,
+                    R.drawable.logo_mindtodo
+                )
+            )
+            .setSound(sound)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
@@ -164,6 +178,8 @@ class AlarmReceiver : BroadcastReceiver() {
             )
             channel.enableVibration(true)
             channel.vibrationPattern = longArrayOf(1000, 1000, 1000, 1000, 1000)
+            channel.enableLights(true)
+            channel.setSound(sound, audioAttributes)
             builder.setChannelId(channelId)
             notificationManagerCompat.createNotificationChannel(channel)
         }
