@@ -1,6 +1,7 @@
 package com.id.mindtodo.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -35,7 +36,8 @@ fun LetStartButton(
     ) {
         AnimatedVisibility(
             modifier = Modifier.fillMaxWidth(),
-            visible = pagerState.currentPage == 2
+            visible = pagerState.currentPage == 2,
+            enter = slideInVertically()
         ) {
             StartButtonRounded(
                 onClick = onClick

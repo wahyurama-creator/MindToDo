@@ -30,6 +30,12 @@ fun SplashScreen(
     navigateToListScreen: () -> Unit
 ) {
     var startAnimation by remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = true) {
+        startAnimation = true
+        delay(2000)
+        navigateToListScreen()
+    }
+
     val offsetState by animateDpAsState(
         targetValue = if (startAnimation) 0.dp else 100.dp, animationSpec = tween(
             durationMillis = 1000
@@ -40,13 +46,6 @@ fun SplashScreen(
             durationMillis = 1000
         )
     )
-
-    LaunchedEffect(key1 = true) {
-        startAnimation = true
-        delay(3000)
-        navigateToListScreen()
-    }
-
     Splash(offsetState = offsetState, alphaState = alphaState)
 }
 

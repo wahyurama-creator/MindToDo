@@ -12,5 +12,6 @@ data class ToDoTask(
     val description: String,
     val priority: Priority,
     val isReminder: Boolean,
-    val reminderAt: String
+    val reminderAt: String,
+    val alarmId: Int
 )

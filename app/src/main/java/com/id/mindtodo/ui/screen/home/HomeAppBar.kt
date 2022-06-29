@@ -1,5 +1,6 @@
 package com.id.mindtodo.ui.screen.home
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.R
 import com.id.mindtodo.component.DisplayAlertDialog
 import com.id.mindtodo.component.PriorityItem
@@ -33,6 +35,9 @@ import com.id.mindtodo.ui.util.Action
 import com.id.mindtodo.ui.util.SearchAppBarState
 import com.id.mindtodo.ui.viewmodel.SharedViewModel
 
+@ExperimentalAnimationApi
+@ExperimentalMaterialApi
+@ExperimentalPagerApi
 @Composable
 fun ListAppBar(
     sharedViewModel: SharedViewModel,

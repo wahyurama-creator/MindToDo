@@ -11,6 +11,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.ui.screen.home.ListScreen
 import com.id.mindtodo.ui.util.Action
 import com.id.mindtodo.ui.util.Constants.LIST_ARGUMENT_KEY
@@ -18,6 +19,7 @@ import com.id.mindtodo.ui.util.Constants.LIST_SCREEN
 import com.id.mindtodo.ui.util.toAction
 import com.id.mindtodo.ui.viewmodel.SharedViewModel
 
+@ExperimentalPagerApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 fun NavGraphBuilder.listComposable(

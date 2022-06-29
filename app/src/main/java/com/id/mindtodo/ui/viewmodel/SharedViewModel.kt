@@ -3,13 +3,14 @@ package com.id.mindtodo.ui.viewmodel
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.data.model.Priority
 import com.id.mindtodo.data.model.ToDoTask
 import com.id.mindtodo.data.repository.DataStoreRepository
@@ -17,7 +18,6 @@ import com.id.mindtodo.data.repository.ToDoRepository
 import com.id.mindtodo.receiver.AlarmReceiver
 import com.id.mindtodo.ui.util.Action
 import com.id.mindtodo.ui.util.Constants.MAX_TITLE_LENGTH
-import com.id.mindtodo.ui.util.Constants.ON_BOARD_SCREEN
 import com.id.mindtodo.ui.util.RequestState
 import com.id.mindtodo.ui.util.SearchAppBarState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,11 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
+import kotlin.random.Random
 
+@ExperimentalPagerApi
+@ExperimentalMaterialApi
+@ExperimentalAnimationApi
 @HiltViewModel
 class SharedViewModel @Inject constructor(
     private val repository: ToDoRepository,
@@ -41,12 +45,14 @@ class SharedViewModel @Inject constructor(
     val priority: MutableState<Priority> = mutableStateOf(Priority.LOW)
     val isReminder: MutableState<Boolean> = mutableStateOf(false)
     val reminderAt: MutableState<String> = mutableStateOf("")
+    val alarmID: MutableState<Int> = mutableStateOf(0)
+    private val date: MutableState<String> = mutableStateOf("")
+    val times: MutableState<String> = mutableStateOf("")
 
-    // temp variable
-    val tempIsReminder: MutableState<Boolean> = mutableStateOf(false)
-    val tempReminderAt: MutableState<String> = mutableStateOf("")
-    val tempDate: MutableState<String> = mutableStateOf("")
-    val tempTime: MutableState<String> = mutableStateOf("")
+    // To compare time on alarm when time not change
+    private val oldTimes: MutableState<String> = mutableStateOf("")
+    private val newTimes: MutableState<String> = mutableStateOf("")
+    private val alarmReceiver = AlarmReceiver()
 
     val searchAppBarState: MutableState<SearchAppBarState> =
         mutableStateOf(
@@ -128,6 +134,7 @@ class SharedViewModel @Inject constructor(
             priority.value = selectedTask.priority
             isReminder.value = selectedTask.isReminder
             reminderAt.value = selectedTask.reminderAt
+            alarmID.value = selectedTask.alarmId
         } else {
             id.value = 0
             title.value = ""
@@ -135,6 +142,7 @@ class SharedViewModel @Inject constructor(
             priority.value = Priority.LOW
             isReminder.value = false
             reminderAt.value = ""
+            alarmID.value = 0
         }
     }
 
@@ -148,6 +156,15 @@ class SharedViewModel @Inject constructor(
         val startDay = currentDateTime.get(Calendar.DAY_OF_MONTH)
         val startHour = currentDateTime.get(Calendar.HOUR_OF_DAY)
         val startMinute = currentDateTime.get(Calendar.MINUTE)
+
+        val uniqueID = Random.nextInt(100000)
+        val alarms = alarmID.value
+        val ids = if (alarms != 0) {
+            alarmID.value
+        } else {
+            uniqueID
+        }
+        alarmID.value = ids
 
         val datePickerDialog = DatePickerDialog(context, { _, year, month, day ->
             val timePickerDialog = TimePickerDialog(context, { _, hour, minute ->
@@ -163,10 +180,45 @@ class SharedViewModel @Inject constructor(
                 val timeStr = "$hour:$minute"
                 time = "$dateIndStr $timeStr"
 
-                tempIsReminder.value = true
-                tempReminderAt.value = time
-                tempDate.value = dateUsStr
-                tempTime.value = timeStr
+                date.value = dateUsStr
+                times.value = timeStr
+                isReminder.value = true
+
+                when {
+                    reminderAt.value == "" -> {
+                        reminderAt.value = time
+
+                        alarmReceiver.setOneTimeAlarm(
+                            context = context,
+                            type = AlarmReceiver.TYPE_ONE_TIME,
+                            date = date.value,
+                            time = times.value,
+                            message = "Don't forget! You have task to do now",
+                            title = title.value,
+                            alarmID = alarmID.value
+                        )
+                    }
+                    reminderAt.value.isNotEmpty() -> {
+                        oldTimes.value = reminderAt.value
+                        newTimes.value = time
+                        Log.e("OldTimes|NewTimes", "$oldTimes || $newTimes")
+
+                        if (oldTimes != newTimes) {
+                            reminderAt.value = newTimes.value
+                            Log.e("NewTimes", newTimes.value)
+
+                            alarmReceiver.setOneTimeAlarm(
+                                context = context,
+                                type = AlarmReceiver.TYPE_ONE_TIME,
+                                date = date.value,
+                                time = times.value,
+                                message = "Don't forget! You have task to do now",
+                                title = title.value,
+                                alarmID = alarmID.value
+                            )
+                        }
+                    }
+                }
             }, startHour, startMinute, false)
             timePickerDialog.show()
         }, startYear, startMonth, startDay)
@@ -182,7 +234,8 @@ class SharedViewModel @Inject constructor(
                 description = description.value,
                 priority = priority.value,
                 isReminder = isReminder.value,
-                reminderAt = reminderAt.value
+                reminderAt = reminderAt.value,
+                alarmId = alarmID.value
             )
             repository.addTask(toDoTask)
         }
@@ -197,7 +250,8 @@ class SharedViewModel @Inject constructor(
                 description = description.value,
                 priority = priority.value,
                 isReminder = isReminder.value,
-                reminderAt = reminderAt.value
+                reminderAt = reminderAt.value,
+                alarmId = alarmID.value
             )
             repository.updateTask(toDoTask)
         }
@@ -211,7 +265,8 @@ class SharedViewModel @Inject constructor(
                 description = description.value,
                 priority = priority.value,
                 isReminder = isReminder.value,
-                reminderAt = reminderAt.value
+                reminderAt = reminderAt.value,
+                alarmId = alarmID.value
             )
             repository.deleteTask(toDoTask)
         }

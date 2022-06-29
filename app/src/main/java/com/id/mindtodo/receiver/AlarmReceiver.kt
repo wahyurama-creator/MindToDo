@@ -29,23 +29,14 @@ import java.util.*
 @ExperimentalAnimationApi
 class AlarmReceiver : BroadcastReceiver() {
 
-    companion object {
-        const val TYPE_ONE_TIME = "MindToDo Reminder"
-        const val EXTRA_MESSAGE = "message"
-        const val EXTRA_TYPE = "type"
-        const val EXTRA_TITLE = "title"
-
-        private const val ID_ONETIME = 100
-
-        private const val DATE_FORMAT = "yyyy-MM-dd"
-        private const val TIME_FORMAT = "HH:mm"
-    }
-
     override fun onReceive(context: Context, intent: Intent) {
         val message = intent.getStringExtra(EXTRA_MESSAGE)
         val title = intent.getStringExtra(EXTRA_TITLE)
+        val alarmID = intent.getIntExtra(EXTRA_ALARM_ID, 0)
+
         if (message != null) {
-            showAlarmNotification(context, message, title!!)
+            Log.e("AlarmID", alarmID.toString())
+            showAlarmNotification(context, message, title!!, alarmID)
         }
     }
 
@@ -55,7 +46,8 @@ class AlarmReceiver : BroadcastReceiver() {
         date: String,
         time: String,
         message: String,
-        title: String
+        title: String,
+        alarmID: Int
     ) {
         if (isDateInvalid(date, DATE_FORMAT) || isDateInvalid(time, TIME_FORMAT)) return
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -64,6 +56,8 @@ class AlarmReceiver : BroadcastReceiver() {
         intent.putExtra(EXTRA_MESSAGE, message)
         intent.putExtra(EXTRA_TYPE, type)
         intent.putExtra(EXTRA_TITLE, title)
+        intent.putExtra(EXTRA_ALARM_ID, alarmID)
+
         Log.e("ONE TIME", "$date $time")
 
         val dateArray = date.split("-").toTypedArray()
@@ -78,14 +72,13 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            ID_ONETIME,
+            alarmID,
             intent,
 
-            // Fix warnings immutable
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_ONE_SHOT
             }
         )
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
@@ -93,17 +86,17 @@ class AlarmReceiver : BroadcastReceiver() {
             .show()
     }
 
-    fun cancelAlarm(context: Context) {
+    fun cancelAlarm(context: Context, alarmID: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            ID_ONETIME,
+            alarmID,
             intent,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             } else {
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_ONE_SHOT
             }
         )
         pendingIntent.cancel()
@@ -126,34 +119,31 @@ class AlarmReceiver : BroadcastReceiver() {
     private fun showAlarmNotification(
         context: Context,
         message: String,
-        title: String
+        title: String,
+        alarmID: Int
     ) {
-        val channelId = "Channel_1"
         val channelName = "AlarmManager channel"
 
         val intent = Intent(context, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent =
             PendingIntent.getActivity(
-                context, 0, intent,
+                context, alarmID, intent,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
                 } else {
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_ONE_SHOT
                 }
             )
         val notificationManagerCompat =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-        // Set notification sound
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
             .build()
         val sound =
             Uri.parse("android.resource://" + context.packageName + "/" + R.raw.positive_notification)
 
-        val builder = NotificationCompat.Builder(context, channelId)
+        val builder = NotificationCompat.Builder(context, alarmID.toString())
             .setSmallIcon(R.drawable.ic_checklist)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentTitle(title)
@@ -172,18 +162,29 @@ class AlarmReceiver : BroadcastReceiver() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId,
+                alarmID.toString(),
                 channelName,
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_DEFAULT
             )
             channel.enableVibration(true)
             channel.vibrationPattern = longArrayOf(1000, 1000, 1000, 1000, 1000)
             channel.enableLights(true)
             channel.setSound(sound, audioAttributes)
-            builder.setChannelId(channelId)
+            builder.setChannelId(alarmID.toString())
             notificationManagerCompat.createNotificationChannel(channel)
         }
         val notification = builder.build()
-        notificationManagerCompat.notify(ID_ONETIME, notification)
+        notificationManagerCompat.notify(alarmID, notification)
+    }
+
+    companion object {
+        const val TYPE_ONE_TIME = "MindToDo Reminder"
+        const val EXTRA_MESSAGE = "message"
+        const val EXTRA_TYPE = "type"
+        const val EXTRA_TITLE = "title"
+        const val EXTRA_ALARM_ID = "alarmId"
+
+        private const val DATE_FORMAT = "yyyy-MM-dd"
+        private const val TIME_FORMAT = "HH:mm"
     }
 }

@@ -41,8 +41,9 @@ fun TaskContent(
     sharedViewModel: SharedViewModel
 ) {
     val context = LocalContext.current
-    var reminder by sharedViewModel.isReminder
-    var dateTime by sharedViewModel.reminderAt
+    var isReminder by sharedViewModel.isReminder
+    var reminderAt by sharedViewModel.reminderAt
+    var alarmID by sharedViewModel.alarmID
 
     Scaffold(
         content = {
@@ -77,11 +78,12 @@ fun TaskContent(
                     textStyle = MaterialTheme.typography.body1,
                 )
 
-                if (sharedViewModel.tempIsReminder.value || sharedViewModel.isReminder.value) {
+                if (isReminder) {
                     OutlinedTextField(
-                        value = if (reminder)
-                            sharedViewModel.reminderAt.value else sharedViewModel.tempReminderAt.value,
-                        onValueChange = { onReminderSelected(it) },
+                        value = sharedViewModel.reminderAt.value,
+                        onValueChange = {
+                            onReminderSelected(it)
+                        },
                         modifier = Modifier
                             .fillMaxWidth(),
                         label = {
@@ -92,14 +94,15 @@ fun TaskContent(
                         trailingIcon = {
                             IconButton(
                                 onClick = {
-                                    dateTime = ""
-                                    reminder = false
-
-                                    sharedViewModel.tempIsReminder.value = false
-                                    sharedViewModel.tempReminderAt.value = ""
+                                    reminderAt = ""
+                                    isReminder = false
 
                                     val alarmReceiver = AlarmReceiver()
-                                    alarmReceiver.cancelAlarm(context)
+                                    alarmReceiver.cancelAlarm(
+                                        context = context,
+                                        alarmID = alarmID
+                                    )
+                                    alarmID = 0
                                 }
                             ) {
                                 Icon(

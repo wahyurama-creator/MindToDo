@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.id.mindtodo.R
 import com.id.mindtodo.ui.theme.fabBackgroundColor
 import com.id.mindtodo.ui.util.Action
@@ -17,6 +18,7 @@ import com.id.mindtodo.ui.util.toLowerCaseInFirst
 import com.id.mindtodo.ui.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 
+@ExperimentalPagerApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable

@@ -17,6 +17,7 @@ import com.id.mindtodo.data.model.ToDoTask
 import com.id.mindtodo.ui.theme.topAppBarBackground
 import com.id.mindtodo.ui.theme.topAppBarContentColor
 import com.id.mindtodo.ui.util.Action
+import kotlin.random.Random
 
 @Composable
 fun TaskAppBar(
@@ -182,7 +183,8 @@ fun TaskAppBarPreview() {
             "Example description...",
             Priority.MEDIUM,
             false,
-            ""
+            "",
+            Random.nextInt(100000)
         ),
         navigateToListScreen = {})
 }
@@ -197,7 +199,8 @@ fun ExistingTaskAppBarPreview() {
             "Example description...",
             Priority.MEDIUM,
             false,
-            ""
+            "",
+            Random.nextInt(100000)
         ),
         navigateToListScreen = {}
     )
